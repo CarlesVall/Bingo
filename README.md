@@ -2,6 +2,12 @@
 
 Aplicacion web local-first para crear, guardar y usar bingos personalizados de eventos.
 
+## Demo
+
+La aplicacion publicada esta disponible en GitHub Pages:
+
+https://carlesvall.github.io/Bingo/
+
 ## Requisitos
 
 - Node.js 20 o superior.
