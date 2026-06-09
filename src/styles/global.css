@@ -1633,6 +1633,15 @@ button.bingo-cell {
   font-size: 0.92rem;
 }
 
+.shuffle-cells-button {
+  justify-self: start;
+  min-height: 36px;
+  padding: 7px 10px;
+  color: #ffffff;
+  border-color: #215369;
+  background: linear-gradient(130deg, #215369, #1d8f8a);
+}
+
 .editable-bingo-grid {
   width: min(100%, 900px);
   max-width: 900px;

@@ -1,4 +1,4 @@
-import { ImagePlus, Type } from "lucide-react";
+import { ImagePlus, Shuffle, Type } from "lucide-react";
 import type { CSSProperties } from "react";
 import type { Bingo, BingoCell, WildcardCell } from "../domain/bingoTypes";
 import { imageFileToDataUrl } from "../utils/images";
@@ -34,6 +34,28 @@ function applyWildcardPatch(
     ...bingo,
     wildcard: { ...bingo.wildcard, ...patch },
   });
+}
+
+function shuffleCells(cells: BingoCell[]) {
+  const shuffledContents = cells.map((cell) => ({
+    contentType: cell.contentType,
+    text: cell.text,
+    imageDataUrl: cell.imageDataUrl,
+    altText: cell.altText,
+  }));
+
+  for (let index = shuffledContents.length - 1; index > 0; index -= 1) {
+    const nextIndex = Math.floor(Math.random() * (index + 1));
+    [shuffledContents[index], shuffledContents[nextIndex]] = [
+      shuffledContents[nextIndex],
+      shuffledContents[index],
+    ];
+  }
+
+  return cells.map((cell, index) => ({
+    ...cell,
+    ...shuffledContents[index],
+  }));
 }
 
 export function EditableBingoBoard({
@@ -83,6 +105,13 @@ export function EditableBingoBoard({
     }
     const imageDataUrl = await imageFileToDataUrl(file);
     applyWildcardPatch(bingo, { contentType: "image", imageDataUrl }, onChange);
+  }
+
+  function randomizeCellPositions() {
+    onChange({
+      ...bingo,
+      cells: shuffleCells(bingo.cells),
+    });
   }
 
   return (
@@ -157,19 +186,21 @@ export function EditableBingoBoard({
           )}
         </div>
 
-        <label className="title-inline-editor">
-          <span>Titulo del bingo</span>
-          <input
-            type="text"
-            value={bingo.title}
-            onChange={(event) =>
-              onChange({
-                ...bingo,
-                title: event.target.value,
-              })
-            }
-            placeholder="Escribe el titulo dentro del bingo"
-          />
+        <div className="title-inline-editor">
+          <label className="title-inline-field">
+            <span>Titulo del bingo</span>
+            <input
+              type="text"
+              value={bingo.title}
+              onChange={(event) =>
+                onChange({
+                  ...bingo,
+                  title: event.target.value,
+                })
+              }
+              placeholder="Escribe el titulo dentro del bingo"
+            />
+          </label>
           <div className="title-inline-size">
             <span>Tamano</span>
             <input
@@ -180,7 +211,15 @@ export function EditableBingoBoard({
               onChange={(event) => onSizeChange(Number(event.target.value))}
             />
           </div>
-        </label>
+          <button
+            type="button"
+            className="shuffle-cells-button"
+            onClick={randomizeCellPositions}
+          >
+            <Shuffle size={16} />
+            Mezclar casillas
+          </button>
+        </div>
       </div>
 
       <div
