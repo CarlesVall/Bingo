@@ -26,6 +26,7 @@ export type BingoCell = {
 };
 
 export type WildcardCell = {
+  enabled: boolean;
   contentType: ContentType;
   text?: string;
   imageDataUrl?: string;

@@ -44,7 +44,7 @@ export function validateBingo(bingo: Bingo): ValidationResult {
     errors.push("Todas las casillas deben tener texto o imagen.");
   }
 
-  if (!hasCellContent(bingo.wildcard)) {
+  if (bingo.wildcard.enabled !== false && !hasCellContent(bingo.wildcard)) {
     errors.push("La casilla comodin debe tener texto o imagen.");
   }
 

@@ -1529,6 +1529,12 @@ button.bingo-cell {
   gap: 8px;
 }
 
+.wildcard-corner-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .wildcard-corner strong {
   font-size: 0.83rem;
   letter-spacing: 0.02em;

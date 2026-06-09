@@ -21,6 +21,7 @@ export type SharedBingoTemplate = {
   version: typeof SHARED_TEMPLATE_VERSION;
   title: string;
   size: number;
+  wildcardEnabled: boolean;
   scoring: ScoringConfig;
   appearance: SharedAppearanceConfig;
 };
@@ -120,6 +121,7 @@ function sanitizeTemplate(candidate: SharedBingoTemplate): SharedBingoTemplate {
     version: SHARED_TEMPLATE_VERSION,
     title: typeof candidate.title === "string" ? candidate.title : "",
     size: sanitizeSize(candidate.size),
+    wildcardEnabled: candidate.wildcardEnabled !== false,
     scoring: sanitizeScoring(candidate.scoring),
     appearance,
   };
@@ -133,6 +135,7 @@ export function createSharedBingoTemplate(bingo: Bingo): SharedBingoTemplate {
     version: SHARED_TEMPLATE_VERSION,
     title: bingo.title,
     size: bingo.size,
+    wildcardEnabled: bingo.wildcard.enabled !== false,
     scoring: cloneScoring(bingo.scoring),
     appearance: cloneAppearance(appearance),
   });
@@ -167,6 +170,7 @@ export function createBingoFromSharedTemplate(template: SharedBingoTemplate): Bi
     size: sanitizedTemplate.size,
     cells: createCells(sanitizedTemplate.size),
     wildcard: {
+      enabled: sanitizedTemplate.wildcardEnabled,
       contentType: "text",
       text: "",
     },

@@ -36,29 +36,42 @@ export function FinalScoreModal({
   onBackToGame,
   onSaveResult,
 }: FinalScoreModalProps) {
+  const wildcardEnabled = bingo.wildcard.enabled !== false;
   const recommendedCell = useMemo(
-    () => findBestWildcardTarget(bingo, markedCellIds),
-    [bingo, markedCellIds],
+    () => (wildcardEnabled ? findBestWildcardTarget(bingo, markedCellIds) : null),
+    [bingo, markedCellIds, wildcardEnabled],
   );
   const [wildcardCellId, setWildcardCellId] = useState<string | null>(
-    initialWildcardAppliedToCellId ??
-      (manualWildcardMode ? null : (recommendedCell?.id ?? null)),
+    wildcardEnabled
+      ? (initialWildcardAppliedToCellId ??
+        (manualWildcardMode ? null : (recommendedCell?.id ?? null)))
+      : null,
   );
   const [isSaving, setIsSaving] = useState(false);
   const scoringEnabled = isScoringEnabled(bingo);
+  const effectiveWildcardCellId = wildcardEnabled ? wildcardCellId : null;
   const markedSet = useMemo(() => new Set(markedCellIds), [markedCellIds]);
   const unmarkedCells = bingo.cells.filter((cell) => !markedSet.has(cell.id));
   const finalScore = useMemo(
-    () => calculateFinalScore(bingo, markedCellIds, wildcardCellId),
-    [bingo, markedCellIds, wildcardCellId],
+    () => calculateFinalScore(bingo, markedCellIds, effectiveWildcardCellId),
+    [bingo, markedCellIds, effectiveWildcardCellId],
   );
   const completedLines = useMemo(
-    () => getCompletedLines(bingo, markedCellIds, wildcardCellId),
-    [bingo, markedCellIds, wildcardCellId],
+    () => getCompletedLines(bingo, markedCellIds, effectiveWildcardCellId),
+    [bingo, markedCellIds, effectiveWildcardCellId],
   );
-  const hasBingo = isBingoComplete(bingo, markedCellIds, wildcardCellId);
+  const hasBingo = isBingoComplete(
+    bingo,
+    markedCellIds,
+    effectiveWildcardCellId,
+  );
 
   useEffect(() => {
+    if (!wildcardEnabled) {
+      setWildcardCellId(null);
+      return;
+    }
+
     if (initialWildcardAppliedToCellId) {
       setWildcardCellId(initialWildcardAppliedToCellId);
       return;
@@ -68,12 +81,17 @@ export function FinalScoreModal({
       return;
     }
     setWildcardCellId(recommendedCell?.id ?? null);
-  }, [initialWildcardAppliedToCellId, manualWildcardMode, recommendedCell?.id]);
+  }, [
+    initialWildcardAppliedToCellId,
+    manualWildcardMode,
+    recommendedCell?.id,
+    wildcardEnabled,
+  ]);
 
   async function handleSave() {
     setIsSaving(true);
     try {
-      await onSaveResult(wildcardCellId, finalScore);
+      await onSaveResult(effectiveWildcardCellId, finalScore);
     } finally {
       setIsSaving(false);
     }
@@ -101,13 +119,13 @@ export function FinalScoreModal({
               bingo={bingo}
               markedCellIds={markedCellIds}
               completedLineIds={completedLines.map((line) => line.id)}
-              wildcardAppliedToCellId={wildcardCellId}
+              wildcardAppliedToCellId={effectiveWildcardCellId}
               compact
             />
           </div>
 
           <div className="final-details">
-            {manualWildcardMode ? (
+            {!wildcardEnabled ? null : manualWildcardMode ? (
               <div className="manual-wildcard-summary">
                 <span>Comodin en partida</span>
                 <strong>

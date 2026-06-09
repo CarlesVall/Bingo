@@ -112,18 +112,25 @@ export function PlayBingoPage({
   const previousLineIds = useRef<string[]>([]);
   const previousBingoComplete = useRef(false);
   const markedSet = useMemo(() => new Set(markedCellIds), [markedCellIds]);
+  const wildcardEnabled = bingo.wildcard.enabled !== false;
+  const effectiveWildcardAppliedToCellId = wildcardEnabled
+    ? wildcardAppliedToCellId
+    : null;
 
   const completedLines = useMemo(
-    () => getCompletedLines(bingo, markedCellIds, wildcardAppliedToCellId),
-    [bingo, markedCellIds, wildcardAppliedToCellId],
+    () => getCompletedLines(bingo, markedCellIds, effectiveWildcardAppliedToCellId),
+    [bingo, markedCellIds, effectiveWildcardAppliedToCellId],
   );
   const bingoComplete = useMemo(
-    () => isBingoComplete(bingo, markedCellIds, wildcardAppliedToCellId),
-    [bingo, markedCellIds, wildcardAppliedToCellId],
+    () => isBingoComplete(bingo, markedCellIds, effectiveWildcardAppliedToCellId),
+    [bingo, markedCellIds, effectiveWildcardAppliedToCellId],
   );
   const effectiveMarkedCount =
     markedCellIds.length +
-    (wildcardAppliedToCellId && !markedSet.has(wildcardAppliedToCellId) ? 1 : 0);
+    (effectiveWildcardAppliedToCellId &&
+    !markedSet.has(effectiveWildcardAppliedToCellId)
+      ? 1
+      : 0);
   const wildcardStyle = {
     "--cell-bg": bingo.appearance.cellColor,
     "--cell-text": bingo.appearance.cellTextColor,
@@ -134,16 +141,21 @@ export function PlayBingoPage({
   useEffect(() => {
     const payload: PersistedPlayState = {
       markedCellIds,
-      wildcardAppliedToCellId,
+      wildcardAppliedToCellId: effectiveWildcardAppliedToCellId,
     };
     localStorage.setItem(storageKey, JSON.stringify(payload));
-  }, [markedCellIds, wildcardAppliedToCellId, storageKey]);
+  }, [markedCellIds, effectiveWildcardAppliedToCellId, storageKey]);
 
   useEffect(() => {
+    if (!wildcardEnabled && wildcardAppliedToCellId) {
+      setWildcardAppliedToCellId(null);
+      return;
+    }
+
     if (wildcardAppliedToCellId && markedSet.has(wildcardAppliedToCellId)) {
       setWildcardAppliedToCellId(null);
     }
-  }, [markedSet, wildcardAppliedToCellId]);
+  }, [markedSet, wildcardAppliedToCellId, wildcardEnabled]);
 
   useEffect(() => {
     const nextLineIds = completedLines.map((line) => line.id);
@@ -183,10 +195,14 @@ export function PlayBingoPage({
   }
 
   function canDropWildcardOnCell(cell: BingoCell) {
-    return !markedSet.has(cell.id);
+    return wildcardEnabled && !markedSet.has(cell.id);
   }
 
   function startWildcardDrag() {
+    if (!wildcardEnabled) {
+      return;
+    }
+
     setIsDraggingWildcard(true);
   }
 
@@ -209,7 +225,7 @@ export function PlayBingoPage({
   }
 
   function handleWildcardDropOnCell(cell: BingoCell) {
-    if (!isDraggingWildcard || !canDropWildcardOnCell(cell)) {
+    if (!wildcardEnabled || !isDraggingWildcard || !canDropWildcardOnCell(cell)) {
       return;
     }
     setWildcardAppliedToCellId(cell.id);
@@ -288,6 +304,10 @@ export function PlayBingoPage({
   }
 
   function startWildcardPointerDrag(event: ReactPointerEvent<HTMLElement>) {
+    if (!wildcardEnabled) {
+      return;
+    }
+
     if (event.pointerType === "mouse" && event.button !== 0) {
       return;
     }
@@ -344,13 +364,14 @@ export function PlayBingoPage({
     selectedWildcardCellId: string | null,
     finalScore: FinalScore,
   ) {
-    setWildcardAppliedToCellId(selectedWildcardCellId);
+    const nextWildcardCellId = wildcardEnabled ? selectedWildcardCellId : null;
+    setWildcardAppliedToCellId(nextWildcardCellId);
     const payload: PersistedPlayState = {
       markedCellIds,
-      wildcardAppliedToCellId: selectedWildcardCellId,
+      wildcardAppliedToCellId: nextWildcardCellId,
     };
     localStorage.setItem(storageKey, JSON.stringify(payload));
-    await onSaveSession(bingo, markedCellIds, selectedWildcardCellId, finalScore);
+    await onSaveSession(bingo, markedCellIds, nextWildcardCellId, finalScore);
   }
 
   return (
@@ -363,9 +384,11 @@ export function PlayBingoPage({
             markedCellIds={markedCellIds}
             completedLineIds={completedLines.map((line) => line.id)}
             flashLineIds={flashLineIds}
-            wildcardAppliedToCellId={wildcardAppliedToCellId}
-            wildcardDragOverCellId={wildcardDragOverCellId}
-            wildcardDropPulseCellId={wildcardDropPulseCellId}
+            wildcardAppliedToCellId={effectiveWildcardAppliedToCellId}
+            wildcardDragOverCellId={wildcardEnabled ? wildcardDragOverCellId : null}
+            wildcardDropPulseCellId={
+              wildcardEnabled ? wildcardDropPulseCellId : null
+            }
             interactive
             onWildcardDragStart={startWildcardDrag}
             onWildcardDragEnd={endWildcardDrag}
@@ -383,39 +406,42 @@ export function PlayBingoPage({
           />
         </div>
 
-        <aside className="wildcard-dock" style={wildcardStyle}>
-          <h2>Comodin</h2>
-          <div
-            className={`wildcard-preview small draggable ${
-              wildcardAppliedToCellId ? "faded" : ""
-            }`}
-            draggable
-            onPointerDown={startWildcardPointerDrag}
-            onDragStart={(event) => {
-              event.dataTransfer.setData("text/plain", "wildcard");
-              event.dataTransfer.effectAllowed = "move";
-              startWildcardDrag();
-            }}
-            onDragEnd={endWildcardDrag}
-          >
-            {bingo.wildcard.contentType === "image" && bingo.wildcard.imageDataUrl ? (
-              <img
-                src={bingo.wildcard.imageDataUrl}
-                alt={bingo.wildcard.altText || "Casilla comodin"}
-              />
-            ) : (
-              <span>{bingo.wildcard.text || "Comodin"}</span>
-            )}
-          </div>
-          <button
-            type="button"
-            className="ghost"
-            onClick={() => setWildcardAppliedToCellId(null)}
-            disabled={!wildcardAppliedToCellId}
-          >
-            Quitar comodin
-          </button>
-        </aside>
+        {wildcardEnabled ? (
+          <aside className="wildcard-dock" style={wildcardStyle}>
+            <h2>Comodin</h2>
+            <div
+              className={`wildcard-preview small draggable ${
+                wildcardAppliedToCellId ? "faded" : ""
+              }`}
+              draggable
+              onPointerDown={startWildcardPointerDrag}
+              onDragStart={(event) => {
+                event.dataTransfer.setData("text/plain", "wildcard");
+                event.dataTransfer.effectAllowed = "move";
+                startWildcardDrag();
+              }}
+              onDragEnd={endWildcardDrag}
+            >
+              {bingo.wildcard.contentType === "image" &&
+              bingo.wildcard.imageDataUrl ? (
+                <img
+                  src={bingo.wildcard.imageDataUrl}
+                  alt={bingo.wildcard.altText || "Casilla comodin"}
+                />
+              ) : (
+                <span>{bingo.wildcard.text || "Comodin"}</span>
+              )}
+            </div>
+            <button
+              type="button"
+              className="ghost"
+              onClick={() => setWildcardAppliedToCellId(null)}
+              disabled={!wildcardAppliedToCellId}
+            >
+              Quitar comodin
+            </button>
+          </aside>
+        ) : null}
       </div>
 
       <section className="play-controls">
@@ -433,13 +459,15 @@ export function PlayBingoPage({
           </span>
         </div>
 
-        <div className="wildcard-play-inline compact">
-          <h2>Comodin</h2>
-          <p>
-            Arrastralo al tablero para colocarlo en una casilla libre. Puedes moverlo
-            tantas veces como quieras.
-          </p>
-        </div>
+        {wildcardEnabled ? (
+          <div className="wildcard-play-inline compact">
+            <h2>Comodin</h2>
+            <p>
+              Arrastralo al tablero para colocarlo en una casilla libre. Puedes
+              moverlo tantas veces como quieras.
+            </p>
+          </div>
+        ) : null}
 
         <div className="action-row">
           <button type="button" className="ghost" onClick={onBack}>
@@ -457,23 +485,25 @@ export function PlayBingoPage({
         </div>
       </section>
 
-      <div className="play-help-text">
-        El comodin queda desactivado en su origen al colocarlo y se mantiene guardado en
-        la partida para cuando vuelvas a este bingo.
-      </div>
+      {wildcardEnabled ? (
+        <div className="play-help-text">
+          El comodin queda desactivado en su origen al colocarlo y se mantiene
+          guardado en la partida para cuando vuelvas a este bingo.
+        </div>
+      ) : null}
 
       {showFinalScore ? (
         <FinalScoreModal
           bingo={bingo}
           markedCellIds={markedCellIds}
-          initialWildcardAppliedToCellId={wildcardAppliedToCellId}
+          initialWildcardAppliedToCellId={effectiveWildcardAppliedToCellId}
           manualWildcardMode
           onBackToGame={() => setShowFinalScore(false)}
           onSaveResult={handleSaveResult}
         />
       ) : null}
 
-      {wildcardGhostPosition ? (
+      {wildcardEnabled && wildcardGhostPosition ? (
         <div
           className="wildcard-drag-ghost"
           style={{

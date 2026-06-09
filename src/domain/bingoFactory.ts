@@ -84,6 +84,7 @@ export function createEmptyBingo(size = 3): Bingo {
     size: safeSize,
     cells: createCells(safeSize),
     wildcard: {
+      enabled: true,
       contentType: "text",
       text: "",
     },

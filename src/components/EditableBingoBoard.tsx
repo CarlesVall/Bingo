@@ -119,36 +119,56 @@ export function EditableBingoBoard({
       <div className="editable-bingo-top">
         <div className="wildcard-corner">
           <header>
-            <strong>Comodin</strong>
-            <div className="mini-segmented">
-              <button
-                type="button"
-                className={bingo.wildcard.contentType === "text" ? "active" : ""}
-                onClick={() =>
-                  applyWildcardPatch(
-                    bingo,
-                    { contentType: "text", imageDataUrl: undefined },
-                    onChange,
-                  )
-                }
-                aria-label="Comodin texto"
-                title="Texto"
-              >
-                <Type size={14} />
-              </button>
-              <label className="mini-upload" title="Subir imagen">
-                <ImagePlus size={14} />
+            <div className="wildcard-corner-heading">
+              <strong>Comodin</strong>
+              <label className="panel-title-toggle" title="Usar comodin">
                 <input
-                  type="file"
-                  accept="image/*"
+                  type="checkbox"
+                  checked={bingo.wildcard.enabled !== false}
                   onChange={(event) =>
-                    onWildcardFileChange(event.target.files?.[0])
+                    applyWildcardPatch(
+                      bingo,
+                      { enabled: event.target.checked },
+                      onChange,
+                    )
                   }
+                  aria-label="Usar comodin"
                 />
               </label>
             </div>
+            {bingo.wildcard.enabled !== false ? (
+              <div className="mini-segmented">
+                <button
+                  type="button"
+                  className={bingo.wildcard.contentType === "text" ? "active" : ""}
+                  onClick={() =>
+                    applyWildcardPatch(
+                      bingo,
+                      { contentType: "text", imageDataUrl: undefined },
+                      onChange,
+                    )
+                  }
+                  aria-label="Comodin texto"
+                  title="Texto"
+                >
+                  <Type size={14} />
+                </button>
+                <label className="mini-upload" title="Subir imagen">
+                  <ImagePlus size={14} />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) =>
+                      onWildcardFileChange(event.target.files?.[0])
+                    }
+                  />
+                </label>
+              </div>
+            ) : null}
           </header>
-          {bingo.wildcard.contentType === "image" ? (
+          {bingo.wildcard.enabled === false ? (
+            <p>Comodin desactivado</p>
+          ) : bingo.wildcard.contentType === "image" ? (
             <>
               {bingo.wildcard.imageDataUrl ? (
                 <img
