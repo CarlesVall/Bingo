@@ -63,7 +63,16 @@ export type AppearanceConfig = {
   markColor: string;
   titleColor: string;
   fontFamily: string;
-  cellStyle: "classic" | "soft" | "bold" | "minimal";
+  cellStyle:
+    | "classic"
+    | "soft"
+    | "bold"
+    | "minimal"
+    | "rounded"
+    | "ticket"
+    | "neon"
+    | "paper"
+    | "stamp";
   backgroundImageDataUrl?: string;
 };
 

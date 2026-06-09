@@ -107,23 +107,23 @@ export function ScoreTypeEditor({ value, onChange }: ScoreTypeEditorProps) {
               </tbody>
             </table>
           </div>
+
+          <label className="toggle-row score-diagonals-toggle">
+            <input
+              type="checkbox"
+              checked={value.includeDiagonals}
+              onChange={(event) =>
+                onChange({ ...value, includeDiagonals: event.target.checked })
+              }
+            />
+            Contar diagonales como lineas
+          </label>
         </>
       ) : (
         <p className="score-disabled-note">
           Las partidas se guardaran sin calcular puntos.
         </p>
       )}
-
-      <label className="toggle-row score-diagonals-toggle">
-        <input
-          type="checkbox"
-          checked={value.includeDiagonals}
-          onChange={(event) =>
-            onChange({ ...value, includeDiagonals: event.target.checked })
-          }
-        />
-        Contar diagonales como lineas
-      </label>
     </section>
   );
 }

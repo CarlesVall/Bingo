@@ -15,6 +15,34 @@ const colorFields: Array<{ key: keyof AppearanceConfig; label: string }> = [
   { key: "titleColor", label: "Titulo" },
 ];
 
+const fontOptions = [
+  { label: "Sistema", value: "Inter, system-ui, sans-serif" },
+  { label: "Rubik", value: "'Rubik', system-ui, sans-serif" },
+  { label: "Nunito", value: "'Nunito', system-ui, sans-serif" },
+  { label: "Baloo 2", value: "'Baloo 2', system-ui, sans-serif" },
+  { label: "Atkinson", value: "'Atkinson Hyperlegible', system-ui, sans-serif" },
+  { label: "Fraunces", value: "'Fraunces', Georgia, serif" },
+  { label: "Editorial", value: "Georgia, serif" },
+  { label: "Redondeada", value: "'Trebuchet MS', sans-serif" },
+  { label: "Mono", value: "'IBM Plex Mono', 'Courier New', monospace" },
+  { label: "Rotulador", value: "'Permanent Marker', cursive" },
+];
+
+const cellStyleOptions: Array<{
+  value: AppearanceConfig["cellStyle"];
+  label: string;
+}> = [
+  { value: "classic", label: "Clasico" },
+  { value: "soft", label: "Suave" },
+  { value: "bold", label: "Fuerte" },
+  { value: "minimal", label: "Minimal" },
+  { value: "rounded", label: "Redondeado" },
+  { value: "ticket", label: "Ticket" },
+  { value: "neon", label: "Neon" },
+  { value: "paper", label: "Papel" },
+  { value: "stamp", label: "Sello" },
+];
+
 export function AppearanceEditor({ value, onChange }: AppearanceEditorProps) {
   const areCellsTransparent = value.cellColor === "transparent";
   const isBoardTransparent = value.boardColor === "transparent" || areCellsTransparent;
@@ -33,9 +61,9 @@ export function AppearanceEditor({ value, onChange }: AppearanceEditorProps) {
       <div className="panel-title-row">
         <h2>Apariencia</h2>
       </div>
-      <div className="color-grid">
+      <div className="appearance-color-grid">
         {colorFields.map((field) => (
-          <label key={field.key}>
+          <label className="appearance-color-control" key={field.key}>
             <span>{field.label}</span>
             <input
               type="color"
@@ -46,12 +74,10 @@ export function AppearanceEditor({ value, onChange }: AppearanceEditorProps) {
             />
           </label>
         ))}
-      </div>
-
-      <div className="board-appearance-row">
-        <label>
-          <span>Color del tablero</span>
+        <div className="appearance-color-control">
+          <span>Tablero</span>
           <input
+            aria-label="Color del tablero"
             type="color"
             value={isBoardTransparent ? "#ffffff" : value.boardColor}
             disabled={isBoardTransparent}
@@ -59,28 +85,25 @@ export function AppearanceEditor({ value, onChange }: AppearanceEditorProps) {
               onChange({ ...value, boardColor: event.target.value })
             }
           />
-        </label>
-
-        <label className="toggle-row board-transparent-toggle">
+          <label className="compact-check">
+            <input
+              type="checkbox"
+              checked={isBoardTransparent}
+              disabled={areCellsTransparent}
+              onChange={(event) =>
+                onChange({
+                  ...value,
+                  boardColor: event.target.checked ? "transparent" : "#ffffff",
+                })
+              }
+            />
+            Transparente
+          </label>
+        </div>
+        <div className="appearance-color-control">
+          <span>Casillas</span>
           <input
-            type="checkbox"
-            checked={isBoardTransparent}
-            disabled={areCellsTransparent}
-            onChange={(event) =>
-              onChange({
-                ...value,
-                boardColor: event.target.checked ? "transparent" : "#ffffff",
-              })
-            }
-          />
-          Tablero transparente
-        </label>
-      </div>
-
-      <div className="board-appearance-row">
-        <label>
-          <span>Color de casillas</span>
-          <input
+            aria-label="Color de casillas"
             type="color"
             value={areCellsTransparent ? "#ffffff" : value.cellColor}
             disabled={areCellsTransparent}
@@ -88,25 +111,24 @@ export function AppearanceEditor({ value, onChange }: AppearanceEditorProps) {
               onChange({ ...value, cellColor: event.target.value })
             }
           />
-        </label>
-
-        <label className="toggle-row board-transparent-toggle">
-          <input
-            type="checkbox"
-            checked={areCellsTransparent}
-            onChange={(event) =>
-              onChange({
-                ...value,
-                cellColor: event.target.checked ? "transparent" : "#ffffff",
-                boardColor: event.target.checked ? "transparent" : "#ffffff",
-              })
-            }
-          />
-          Casillas transparentes
-        </label>
+          <label className="compact-check">
+            <input
+              type="checkbox"
+              checked={areCellsTransparent}
+              onChange={(event) =>
+                onChange({
+                  ...value,
+                  cellColor: event.target.checked ? "transparent" : "#ffffff",
+                  boardColor: event.target.checked ? "transparent" : "#ffffff",
+                })
+              }
+            />
+            Transparente
+          </label>
+        </div>
       </div>
 
-      <div className="form-grid two">
+      <div className="appearance-select-grid">
         <label>
           <span>Tipografia</span>
           <select
@@ -115,10 +137,11 @@ export function AppearanceEditor({ value, onChange }: AppearanceEditorProps) {
               onChange({ ...value, fontFamily: event.target.value })
             }
           >
-            <option value="Inter, system-ui, sans-serif">Sistema</option>
-            <option value="Georgia, serif">Editorial</option>
-            <option value="'Trebuchet MS', sans-serif">Redondeada</option>
-            <option value="'Courier New', monospace">Mono</option>
+            {fontOptions.map((font) => (
+              <option key={font.value} value={font.value}>
+                {font.label}
+              </option>
+            ))}
           </select>
         </label>
         <label>
@@ -132,10 +155,11 @@ export function AppearanceEditor({ value, onChange }: AppearanceEditorProps) {
               })
             }
           >
-            <option value="classic">Clasico</option>
-            <option value="soft">Suave</option>
-            <option value="bold">Fuerte</option>
-            <option value="minimal">Minimal</option>
+            {cellStyleOptions.map((style) => (
+              <option key={style.value} value={style.value}>
+                {style.label}
+              </option>
+            ))}
           </select>
         </label>
       </div>

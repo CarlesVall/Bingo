@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Baloo+2:wght@500;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,800&family=IBM+Plex+Mono:wght@500;700&family=Nunito:wght@500;700;800&family=Permanent+Marker&family=Rubik:wght@500;700;800&display=swap");
+
 :root {
   --ink-strong: #1e2133;
   --ink-soft: #4e5678;
@@ -500,34 +502,56 @@ input[type="file"] {
   min-width: 84px;
 }
 
-.color-grid {
+.appearance-color-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(126px, 1fr));
+  gap: 10px;
   margin-bottom: 16px;
 }
 
-.color-grid label {
-  grid-template-columns: 1fr auto;
+.appearance-color-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
   align-items: center;
+  gap: 8px;
   border: 1px solid #e2e7ee;
   border-radius: 8px;
-  padding: 10px;
+  padding: 8px;
   background: #ffffff;
+  min-width: 0;
 }
 
-.color-grid input {
+.appearance-color-control > span {
+  min-width: 0;
+  font-size: 0.84rem;
+}
+
+.appearance-color-control input[type="color"] {
   width: 42px;
-  height: 36px;
-  min-height: 36px;
+  height: 34px;
+  min-height: 34px;
   padding: 3px;
 }
 
-.board-appearance-row {
+.compact-check {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.compact-check input {
+  width: 16px;
+  min-height: 16px;
+}
+
+.appearance-select-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(200px, 280px);
-  gap: 14px;
-  margin-bottom: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .board-transparent-toggle {
@@ -750,6 +774,54 @@ button.bingo-cell {
 .bingo-board[data-style="minimal"] .bingo-cell {
   border-width: 1px;
   border-radius: 2px;
+}
+
+.bingo-board[data-style="rounded"] {
+  border-radius: 20px;
+}
+
+.bingo-board[data-style="rounded"] .bingo-cell {
+  border-width: 1px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--cell-border) 18%, transparent);
+}
+
+.bingo-board[data-style="ticket"] .bingo-cell {
+  border-width: 1px;
+  border-style: dashed;
+  border-radius: 6px;
+  box-shadow:
+    inset 10px 0 0 color-mix(in srgb, var(--mark-color) 18%, transparent),
+    0 5px 0 color-mix(in srgb, var(--cell-border) 18%, transparent);
+}
+
+.bingo-board[data-style="neon"] {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--cell-border) 35%, transparent),
+    0 0 24px color-mix(in srgb, var(--cell-border) 28%, transparent);
+}
+
+.bingo-board[data-style="neon"] .bingo-cell {
+  border-width: 1px;
+  border-radius: 12px;
+  text-shadow: 0 0 9px color-mix(in srgb, var(--cell-text) 32%, transparent);
+  box-shadow:
+    inset 0 0 12px color-mix(in srgb, var(--cell-border) 18%, transparent),
+    0 0 14px color-mix(in srgb, var(--cell-border) 22%, transparent);
+}
+
+.bingo-board[data-style="paper"] .bingo-cell {
+  border: 1px solid color-mix(in srgb, var(--cell-border) 48%, #ffffff);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(32, 36, 42, 0.08);
+}
+
+.bingo-board[data-style="stamp"] .bingo-cell {
+  border-width: 3px;
+  border-style: dotted;
+  border-radius: 8px;
+  text-transform: uppercase;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--cell-border) 20%, transparent);
 }
 
 .library-toolbar {
@@ -1632,7 +1704,8 @@ button.bingo-cell {
 
 @media (max-width: 980px) {
   .create-config-grid,
-  .board-appearance-row {
+  .board-appearance-row,
+  .appearance-select-grid {
     grid-template-columns: 1fr;
   }
 
