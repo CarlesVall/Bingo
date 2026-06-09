@@ -44,29 +44,17 @@ export function ScoreTypeEditor({ value, onChange }: ScoreTypeEditorProps) {
     <section className="editor-panel">
       <div className="panel-title-row">
         <h2>Puntuacion</h2>
+        <label className="panel-title-toggle" title="Usar puntos en este bingo">
+          <input
+            type="checkbox"
+            checked={value.enabled !== false}
+            onChange={(event) =>
+              onChange({ ...value, enabled: event.target.checked })
+            }
+            aria-label="Usar puntos en este bingo"
+          />
+        </label>
       </div>
-
-      <label className="toggle-row">
-        <input
-          type="checkbox"
-          checked={value.enabled !== false}
-          onChange={(event) =>
-            onChange({ ...value, enabled: event.target.checked })
-          }
-        />
-        Usar puntos en este bingo
-      </label>
-
-      <label className="toggle-row">
-        <input
-          type="checkbox"
-          checked={value.includeDiagonals}
-          onChange={(event) =>
-            onChange({ ...value, includeDiagonals: event.target.checked })
-          }
-        />
-        Contar diagonales como lineas
-      </label>
 
       {value.enabled !== false ? (
         <>
@@ -125,6 +113,17 @@ export function ScoreTypeEditor({ value, onChange }: ScoreTypeEditorProps) {
           Las partidas se guardaran sin calcular puntos.
         </p>
       )}
+
+      <label className="toggle-row score-diagonals-toggle">
+        <input
+          type="checkbox"
+          checked={value.includeDiagonals}
+          onChange={(event) =>
+            onChange({ ...value, includeDiagonals: event.target.checked })
+          }
+        />
+        Contar diagonales como lineas
+      </label>
     </section>
   );
 }

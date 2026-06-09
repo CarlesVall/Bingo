@@ -294,6 +294,19 @@ main {
   font-size: 1rem;
 }
 
+.panel-title-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+}
+
+.panel-title-toggle input {
+  width: 18px;
+  min-height: 18px;
+}
+
 .form-grid {
   display: grid;
   gap: 14px;
@@ -453,6 +466,11 @@ input[type="file"] {
   padding: 12px;
   color: var(--ink-soft);
   background: rgba(255, 255, 255, 0.64);
+}
+
+.score-diagonals-toggle {
+  margin-top: 14px;
+  margin-bottom: 0;
 }
 
 .score-table-wrap {
@@ -681,6 +699,7 @@ button.bingo-cell {
 .wildcard-overlay-text {
   display: grid;
   place-items: center;
+  align-content: center;
   width: 100%;
   height: 100%;
   padding: 8px;
@@ -691,6 +710,8 @@ button.bingo-cell {
   font-weight: 800;
   text-align: center;
   overflow-wrap: anywhere;
+  -webkit-box-orient: initial;
+  -webkit-line-clamp: unset;
 }
 
 .wildcard-overlay-image.draggable,
@@ -1465,6 +1486,7 @@ button.bingo-cell {
   min-height: 92px;
   color: var(--cell-text);
   background: transparent;
+  align-content: center;
   line-height: 1.08;
   text-align: center;
 }

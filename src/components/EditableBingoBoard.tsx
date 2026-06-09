@@ -46,7 +46,10 @@ export function EditableBingoBoard({
   const boardStyle = {
     "--bingo-size": bingo.size,
     "--bingo-bg": bingo.appearance.backgroundColor,
-    "--board-bg": bingo.appearance.boardColor,
+    "--board-bg":
+      bingo.appearance.cellColor === "transparent"
+        ? "transparent"
+        : bingo.appearance.boardColor,
     "--cell-bg": bingo.appearance.cellColor,
     "--cell-text": bingo.appearance.cellTextColor,
     "--cell-border": bingo.appearance.borderColor,

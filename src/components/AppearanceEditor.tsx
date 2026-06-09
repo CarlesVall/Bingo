@@ -16,8 +16,8 @@ const colorFields: Array<{ key: keyof AppearanceConfig; label: string }> = [
 ];
 
 export function AppearanceEditor({ value, onChange }: AppearanceEditorProps) {
-  const isBoardTransparent = value.boardColor === "transparent";
   const areCellsTransparent = value.cellColor === "transparent";
+  const isBoardTransparent = value.boardColor === "transparent" || areCellsTransparent;
 
   async function handleBackgroundImage(file: File | undefined) {
     if (!file) {
@@ -65,6 +65,7 @@ export function AppearanceEditor({ value, onChange }: AppearanceEditorProps) {
           <input
             type="checkbox"
             checked={isBoardTransparent}
+            disabled={areCellsTransparent}
             onChange={(event) =>
               onChange({
                 ...value,
@@ -97,6 +98,7 @@ export function AppearanceEditor({ value, onChange }: AppearanceEditorProps) {
               onChange({
                 ...value,
                 cellColor: event.target.checked ? "transparent" : "#ffffff",
+                boardColor: event.target.checked ? "transparent" : "#ffffff",
               })
             }
           />

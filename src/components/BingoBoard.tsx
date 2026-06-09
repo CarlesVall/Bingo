@@ -69,7 +69,10 @@ export function BingoBoard({
     "--board-max-size": `${boardMaxSize}px`,
     "--cell-font-max": cellFontMax,
     "--bingo-bg": bingo.appearance.backgroundColor,
-    "--board-bg": bingo.appearance.boardColor,
+    "--board-bg":
+      bingo.appearance.cellColor === "transparent"
+        ? "transparent"
+        : bingo.appearance.boardColor,
     "--cell-bg": bingo.appearance.cellColor,
     "--cell-text": bingo.appearance.cellTextColor,
     "--cell-border": bingo.appearance.borderColor,
