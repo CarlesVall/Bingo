@@ -41,6 +41,7 @@ export type ScoreType = {
 export type ScoreValueMap = Record<string, number>;
 
 export type ScoringConfig = {
+  enabled: boolean;
   scoreTypes: ScoreType[];
   rules: {
     markedCell: ScoreValueMap;

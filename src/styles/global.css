@@ -447,6 +447,14 @@ input[type="file"] {
   font-weight: 800;
 }
 
+.score-disabled-note {
+  border: 1px dashed rgba(78, 86, 120, 0.28);
+  border-radius: 8px;
+  padding: 12px;
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, 0.64);
+}
+
 .score-table-wrap {
   width: 100%;
   overflow-x: auto;

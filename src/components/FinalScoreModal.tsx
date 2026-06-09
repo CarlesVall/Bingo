@@ -1,6 +1,10 @@
 import { Check, RotateCcw, Save } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { calculateFinalScore, findBestWildcardTarget } from "../domain/scoring";
+import {
+  calculateFinalScore,
+  findBestWildcardTarget,
+  isScoringEnabled,
+} from "../domain/scoring";
 import type { Bingo, FinalScore } from "../domain/bingoTypes";
 import { getCompletedLines, isBingoComplete } from "../domain/lineDetection";
 import { BingoBoard } from "./BingoBoard";
@@ -41,6 +45,7 @@ export function FinalScoreModal({
       (manualWildcardMode ? null : (recommendedCell?.id ?? null)),
   );
   const [isSaving, setIsSaving] = useState(false);
+  const scoringEnabled = isScoringEnabled(bingo);
   const markedSet = useMemo(() => new Set(markedCellIds), [markedCellIds]);
   const unmarkedCells = bingo.cells.filter((cell) => !markedSet.has(cell.id));
   const finalScore = useMemo(
@@ -143,30 +148,50 @@ export function FinalScoreModal({
               </label>
             )}
 
-            <div className="score-summary">
-              <h3>Totales</h3>
-              {bingo.scoring.scoreTypes.map((scoreType) => (
-                <div className="score-total" key={scoreType.id}>
-                  <span className="score-icon">{scoreType.icon}</span>
-                  <span>{scoreType.name}</span>
-                  <strong>{finalScore.byScoreType[scoreType.id] ?? 0}</strong>
+            {scoringEnabled ? (
+              <>
+                <div className="score-summary">
+                  <h3>Totales</h3>
+                  {bingo.scoring.scoreTypes.map((scoreType) => (
+                    <div className="score-total" key={scoreType.id}>
+                      <span className="score-icon">{scoreType.icon}</span>
+                      <span>{scoreType.name}</span>
+                      <strong>{finalScore.byScoreType[scoreType.id] ?? 0}</strong>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            <div className="score-breakdown">
-              <h3>Desglose</h3>
-              {Object.entries(finalScore.breakdown).map(([key, scoreMap]) => (
-                <div className="breakdown-row" key={key}>
-                  <span>{breakdownLabels[key as keyof typeof breakdownLabels]}</span>
-                  <span>
-                    {bingo.scoring.scoreTypes
-                      .map((scoreType) => `${scoreType.icon} ${scoreMap[scoreType.id] ?? 0}`)
-                      .join(" / ")}
-                  </span>
+                <div className="score-breakdown">
+                  <h3>Desglose</h3>
+                  {Object.entries(finalScore.breakdown).map(([key, scoreMap]) => (
+                    <div className="breakdown-row" key={key}>
+                      <span>{breakdownLabels[key as keyof typeof breakdownLabels]}</span>
+                      <span>
+                        {bingo.scoring.scoreTypes
+                          .map((scoreType) => `${scoreType.icon} ${scoreMap[scoreType.id] ?? 0}`)
+                          .join(" / ")}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            ) : (
+              <div className="scoreless-summary">
+                <h3>Resultado</h3>
+                <div className="breakdown-row">
+                  <span>Casillas</span>
+                  <strong>{markedCellIds.length}/{bingo.cells.length}</strong>
+                </div>
+                <div className="breakdown-row">
+                  <span>Lineas</span>
+                  <strong>{completedLines.length}</strong>
+                </div>
+                <div className="breakdown-row">
+                  <span>Bingo</span>
+                  <strong>{hasBingo ? "Completo" : "Pendiente"}</strong>
+                </div>
+              </div>
+            )}
 
             <button
               type="button"

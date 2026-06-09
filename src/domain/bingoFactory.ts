@@ -56,6 +56,7 @@ export function createDefaultScoring(): ScoringConfig {
   const scoreTypeId = createId();
 
   return {
+    enabled: true,
     scoreTypes: [
       {
         id: scoreTypeId,
@@ -131,6 +132,7 @@ export function duplicateBingo(bingo: Bingo): Bingo {
     cells: bingo.cells.map((cell) => ({ ...cell, id: createId() })),
     scoring: {
       ...bingo.scoring,
+      enabled: bingo.scoring.enabled !== false,
       scoreTypes,
       rules: {
         markedCell: remapRule(bingo.scoring.rules.markedCell),

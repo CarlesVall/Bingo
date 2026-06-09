@@ -83,7 +83,7 @@ export function CreateBingoPage({
         <div className="workspace-header">
           <div>
             <h2>{isEditing ? "Editar bingo" : "Crear bingo"}</h2>
-            <p>Prepara el tablero, sus puntos y su aspecto visual.</p>
+            <p>Prepara el tablero, la puntuacion y su aspecto visual.</p>
           </div>
           <div className="action-row">
             {isEditing ? (

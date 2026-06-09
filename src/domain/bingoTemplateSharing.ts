@@ -88,6 +88,7 @@ function sanitizeScoring(scoring: ScoringConfig | undefined): ScoringConfig {
   }
 
   return {
+    enabled: scoring?.enabled !== false,
     scoreTypes,
     rules: {
       markedCell: sanitizeRule(scoring?.rules?.markedCell),

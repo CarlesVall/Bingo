@@ -48,39 +48,41 @@ export function validateBingo(bingo: Bingo): ValidationResult {
     errors.push("La casilla comodin debe tener texto o imagen.");
   }
 
-  if (bingo.scoring.scoreTypes.length === 0) {
-    errors.push("Debe existir al menos un tipo de puntuacion.");
-  }
-
-  for (const scoreType of bingo.scoring.scoreTypes) {
-    if (!scoreType.name.trim()) {
-      errors.push("Cada tipo de puntuacion necesita nombre.");
+  if (bingo.scoring.enabled !== false) {
+    if (bingo.scoring.scoreTypes.length === 0) {
+      errors.push("Debe existir al menos un tipo de puntuacion.");
     }
 
-    if (!scoreType.icon.trim()) {
-      errors.push("Cada tipo de puntuacion necesita icono.");
-    }
-  }
-
-  const names = bingo.scoring.scoreTypes.map((scoreType) =>
-    scoreType.name.trim().toLowerCase(),
-  );
-  if (new Set(names).size !== names.length) {
-    warnings.push("Hay nombres de puntuacion duplicados.");
-  }
-
-  const ruleKeys: ScoreRuleKey[] = [
-    "markedCell",
-    "completedLine",
-    "completedBingo",
-    "wildcardUsed",
-  ];
-
-  for (const ruleKey of ruleKeys) {
     for (const scoreType of bingo.scoring.scoreTypes) {
-      const value = bingo.scoring.rules[ruleKey][scoreType.id];
-      if (!Number.isFinite(value)) {
-        errors.push("Los valores de puntuacion deben ser numeros validos.");
+      if (!scoreType.name.trim()) {
+        errors.push("Cada tipo de puntuacion necesita nombre.");
+      }
+
+      if (!scoreType.icon.trim()) {
+        errors.push("Cada tipo de puntuacion necesita icono.");
+      }
+    }
+
+    const names = bingo.scoring.scoreTypes.map((scoreType) =>
+      scoreType.name.trim().toLowerCase(),
+    );
+    if (new Set(names).size !== names.length) {
+      warnings.push("Hay nombres de puntuacion duplicados.");
+    }
+
+    const ruleKeys: ScoreRuleKey[] = [
+      "markedCell",
+      "completedLine",
+      "completedBingo",
+      "wildcardUsed",
+    ];
+
+    for (const ruleKey of ruleKeys) {
+      for (const scoreType of bingo.scoring.scoreTypes) {
+        const value = bingo.scoring.rules[ruleKey][scoreType.id];
+        if (!Number.isFinite(value)) {
+          errors.push("Los valores de puntuacion deben ser numeros validos.");
+        }
       }
     }
   }

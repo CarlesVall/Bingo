@@ -16,6 +16,7 @@ import {
 import { useMemo, useState } from "react";
 import { BingoBoard } from "../components/BingoBoard";
 import { createShareHash } from "../domain/bingoTemplateSharing";
+import { isScoringEnabled } from "../domain/scoring";
 import type { Bingo, BingoSession } from "../domain/bingoTypes";
 
 type MyBingosPageProps = {
@@ -163,6 +164,7 @@ export function MyBingosPage({
         {filteredBingos.map((bingo) => {
           const bingoSessions = sessionsByBingo[bingo.id] ?? [];
           const latestSession = bingoSessions[0];
+          const scoringEnabled = isScoringEnabled(bingo);
 
           return (
             <article className="bingo-card" key={bingo.id}>
@@ -193,7 +195,11 @@ export function MyBingosPage({
                   {latestSession ? (
                     <>
                       <span>Ultimo resultado</span>
-                      <strong>{getTotalScore(latestSession)} pts</strong>
+                      <strong>
+                        {scoringEnabled
+                          ? `${getTotalScore(latestSession)} pts`
+                          : `${latestSession.markedCellIds.length}/${bingo.cells.length}`}
+                      </strong>
                       <small>
                         {formatShortDate(
                           latestSession.endedAt ?? latestSession.startedAt,
@@ -208,7 +214,11 @@ export function MyBingosPage({
                   ) : (
                     <>
                       <span>Sin resultados guardados</span>
-                      <strong>{bingo.scoring.scoreTypes.length} marcador</strong>
+                      <strong>
+                        {scoringEnabled
+                          ? `${bingo.scoring.scoreTypes.length} marcador`
+                          : "Sin puntos"}
+                      </strong>
                       <small>Listo para iniciar partida</small>
                     </>
                   )}

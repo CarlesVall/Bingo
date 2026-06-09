@@ -1,6 +1,10 @@
 import type { Bingo, FinalScore, ScoreValueMap } from "./bingoTypes";
 import { getCompletedLines, isBingoComplete } from "./lineDetection";
 
+export function isScoringEnabled(bingo: Bingo) {
+  return bingo.scoring.enabled !== false;
+}
+
 function emptyScoreMap(bingo: Bingo): ScoreValueMap {
   return Object.fromEntries(
     bingo.scoring.scoreTypes.map((scoreType) => [scoreType.id, 0]),
@@ -33,6 +37,18 @@ export function calculateFinalScore(
   markedCellIds: string[],
   wildcardAppliedToCellId?: string | null,
 ): FinalScore {
+  if (!isScoringEnabled(bingo)) {
+    return {
+      byScoreType: {},
+      breakdown: {
+        markedCells: {},
+        completedLines: {},
+        completedBingo: {},
+        wildcardUsed: {},
+      },
+    };
+  }
+
   const effectiveMarkedCount =
     markedCellIds.length + (wildcardAppliedToCellId ? 1 : 0);
   const completedLines = getCompletedLines(
@@ -91,6 +107,10 @@ export function findBestWildcardTarget(
   bingo: Bingo,
   markedCellIds: string[],
 ) {
+  if (!isScoringEnabled(bingo)) {
+    return null;
+  }
+
   const markedSet = new Set(markedCellIds);
   const candidates = bingo.cells.filter((cell) => !markedSet.has(cell.id));
 
